@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronómetro Reuniones</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="background">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <!-- Contenedor Principal -->
+  <main class="main-container">
+    <div class="glass-panel timer-panel">
+      <div class="timer-display" id="timer">00:00</div>
+      <div class="timer-controls">
+        <button id="btn-start" class="btn btn-primary">Iniciar</button>
+        <button id="btn-reset" class="btn btn-danger">Reiniciar</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Discursante y Tema -->
+  <div id="presentation-modal" class="modal-overlay hidden">
+    <div class="glass-panel presentation-info-large">
+      <h2 id="display-speaker">Nombre del Discursante</h2>
+      <p id="display-origin">Congregación</p>
+      <p id="display-topic">Tema</p>
+      <p id="display-song"></p>
+      <button id="btn-close-modal" class="btn-close-modal">Cerrar Visualización</button>
+    </div>
+  </div>
+
+  <!-- Botón para abrir el panel de control -->
+  <button id="btn-toggle-settings" class="glass-button btn-settings">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path
+        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+      </path>
+    </svg>
+  </button>
+
+  <!-- Panel de Control -->
+  <aside id="settings-panel" class="settings-panel hidden">
+    <h3>Controles del Cronómetro</h3>
+    <div class="input-group">
+      <label for="input-speaker">Discursante</label>
+      <input type="text" id="input-speaker" placeholder="Erick Lozada" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="input-origin">Congregación</label>
+      <input type="text" id="input-origin" placeholder="Santa Maria Ahuacatitlan" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="input-topic">Tema</label>
+      <input type="text" id="input-topic" placeholder="Perlas Escondidas" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="input-song">Canción</label>
+      <input type="number" id="input-song" placeholder="32" autocomplete="off" />
+    </div>
+    <div class="input-group">
+      <label for="input-minutes">Minutos de la participación</label>
+      <input type="number" id="input-minutes" placeholder="5" autocomplete="off" min="1" value="10" />
+    </div>
+    <div class="settings-actions">
+      <button id="btn-show-info" class="btn btn-primary">Mostrar Info</button>
+    </div>
+    <button id="btn-close-settings" class="btn-close">Cerrar</button>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
