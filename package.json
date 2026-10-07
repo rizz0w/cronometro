@@ -1,0 +1,19 @@
+{
+  "name": "cronometro-reuniones",
+  "version": "1.0.0",
+  "description": "Cronómetro de reuniones y asambleas con soporte para Google Chromecast (Presentation API nativa), gestión de vueltas en cola, carga masiva de tiempos y cálculo de balance de tiempo sobrante/faltante.",
+  "type": "module",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -l 8080 .",
+    "dev": "npx serve -l 8080 ."
+  },
+  "keywords": [
+    "cronometro",
+    "presentation-api",
+    "chromecast",
+    "timer",
+    "reuniones"
+  ],
+  "author": "pap0w"
+}

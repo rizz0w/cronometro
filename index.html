@@ -4,81 +4,260 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cronómetro Reuniones</title>
+  <title>Cronómetro de Control</title>
+
+  <link rel="shortcut icon" href="/assets/cronografo.png" type="image/png">
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 </head>
 
-<body>
+<body class="dashboard-body">
+  <!-- Fondo ambiental sutil -->
   <div class="background">
     <div class="shape shape-1"></div>
     <div class="shape shape-2"></div>
     <div class="shape shape-3"></div>
   </div>
 
-  <!-- Contenedor Principal -->
-  <main class="main-container">
-    <div class="glass-panel timer-panel">
-      <div class="timer-display" id="timer">00:00</div>
-      <div class="timer-controls">
-        <button id="btn-start" class="btn btn-primary">Iniciar</button>
-        <button id="btn-reset" class="btn btn-danger">Reiniciar</button>
+  <div class="app-layout">
+    <!-- ================= COLUMNA IZQUIERDA: LISTA DE PARTICIPACIONES (DRAG & DROP) ================= -->
+    <aside class="sidebar-participaciones glass-panel" aria-label="Programa de participaciones">
+      <div class="sidebar-header">
+        <div class="sidebar-title-wrap">
+          <h2 class="sidebar-title">Programa</h2>
+          <span id="meeting-badge" class="badge-meeting">Martes</span>
+        </div>
+        <button id="btn-add-part" class="btn-add-pill" title="Agregar otra participación al programa">
+          + Añadir
+        </button>
       </div>
-    </div>
-  </main>
 
-  <!-- Modal de Discursante y Tema -->
-  <div id="presentation-modal" class="modal-overlay hidden">
-    <div class="glass-panel presentation-info-large">
-      <h2 id="display-speaker">Nombre del Discursante</h2>
-      <p id="display-origin">Congregación</p>
-      <p id="display-topic">Tema</p>
-      <p id="display-song"></p>
-      <button id="btn-close-modal" class="btn-close-modal">Cerrar Visualización</button>
+      <div class="sidebar-drag-hint">
+        <span>Arrastra para reordenar las partes</span>
+      </div>
+
+      <!-- Lista con scroll y Drag & Drop -->
+      <div class="parts-scroll-wrap">
+        <ul id="parts-drag-list" class="parts-drag-list">
+          <!-- Renderizado dinámicamente con JS -->
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ================= COLUMNA DERECHA: CRONÓMETRO Y CONTROLES ================= -->
+    <main class="main-content">
+      <!-- Barra superior con Título de la parte activa y Transmitir a TV -->
+      <div class="main-top-bar glass-panel">
+        <div class="active-part-headline">
+          <span id="active-part-badge" class="part-badge">Parte 1 de 6</span>
+          <h1 id="active-part-title" class="active-part-title">Tesoros de la Biblia</h1>
+        </div>
+
+        <button id="btn-cast" class="btn-cast" title="Transmitir cronómetro a la TV con Chromecast">
+          <span class="cast-icon-wrapper">
+            <svg class="cast-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6">
+              </path>
+              <line x1="2" y1="20" x2="2.01" y2="20"></line>
+            </svg>
+          </span>
+          <span id="cast-status-text">Transmitir a TV</span>
+          <span id="cast-status-pill" class="status-pill offline">Desconectado</span>
+        </button>
+      </div>
+
+      <!-- Hero Timer Panel -->
+      <section class="timer-hero-panel glass-panel">
+        <!-- Display gigante del Cronómetro -->
+        <div class="timer-box">
+          <div class="timer-display" id="timer">10:00</div>
+
+          <!-- Barra de Progreso -->
+          <div class="progress-bar-container">
+            <div id="timer-progress-bar" class="progress-bar-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- 4 Botones Maestros -->
+        <div class="controls-grid">
+          <!-- 1. INICIAR -->
+          <button id="btn-start" class="btn-action btn-action-start" title="Iniciar conteo (Espacio)">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span>INICIAR</span>
+          </button>
+
+          <!-- 2. PAUSAR -->
+          <button id="btn-pause" class="btn-action btn-action-pause" title="Pausar cronómetro">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+            <span>PAUSAR</span>
+          </button>
+
+          <!-- 3. SIGUIENTE PARTICIPACIÓN / FINALIZAR -->
+          <button id="btn-next" class="btn-action btn-action-next"
+            title="Guardar tiempo de esta parte y avanzar (Enter)">
+            <svg id="icon-btn-next" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="5" x2="19" y2="19"></line>
+            </svg>
+            <span id="btn-next-label">SIGUIENTE PARTICIPACIÓN</span>
+          </button>
+
+          <!-- 4. REINICIAR -->
+          <button id="btn-reset" class="btn-action btn-action-reset" title="Reiniciar tiempo asignado a esta parte">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M3 2v6h6"></path>
+              <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+            </svg>
+            <span>REINICIAR</span>
+          </button>
+        </div>
+
+        <!-- Ajustes rápidos en vivo -->
+        <div class="quick-adjustments">
+          <span class="adjust-text">Ajustar tiempo:</span>
+          <button class="btn-adjust" data-adjust="-60">-1 min</button>
+          <button class="btn-adjust" data-adjust="-30">-30 seg</button>
+          <button class="btn-adjust" data-adjust="30">+30 seg</button>
+          <button class="btn-adjust" data-adjust="60">+1 min</button>
+        </div>
+      </section>
+
+      <!-- ================= DOS COLUMNAS INFERIORES: DISCURSANTE Y REGISTRO COMPACTO ================= -->
+      <div class="bottom-grid">
+        <!-- COLUMNA 1: DATOS DEL DISCURSANTE -->
+        <section class="bottom-card glass-panel">
+          <div class="card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <h3>Datos del Discursante</h3>
+          </div>
+
+          <div class="speaker-fields-grid">
+            <div class="field-box">
+              <label for="input-speaker">Nombre del Discursante</label>
+              <input type="text" id="input-speaker" placeholder="Ej: Erick Lozada" autocomplete="off" />
+            </div>
+
+            <div class="field-box">
+              <label for="input-origin">Congregación</label>
+              <input type="text" id="input-origin" placeholder="Ej: Santa Maria Ahuacatitlan" autocomplete="off" />
+            </div>
+
+            <div class="field-box full">
+              <label for="input-topic">Título de la Asignación</label>
+              <input type="text" id="input-topic" placeholder="Ej: Tesoros de la Biblia" autocomplete="off" />
+            </div>
+
+            <div class="field-box">
+              <label for="input-song">Canción</label>
+              <input type="number" id="input-song" placeholder="32" autocomplete="off" />
+            </div>
+
+            <div class="field-box">
+              <label for="input-minutes">Minutos Asignados</label>
+              <input type="number" id="input-minutes" min="0" max="180" placeholder="0" />
+            </div>
+          </div>
+
+          <!-- UN SOLO BOTÓN PARA PROYECTAR EN AMBAS PANTALLAS -->
+          <div class="plaque-action-wrap">
+            <button id="btn-toggle-plaque" class="btn-plaque">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              <span id="btn-plaque-text">Mostrar información</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- COLUMNA 2: REGISTRO DE TIEMPOS Y BALANCE COMPACTO -->
+        <section class="bottom-card glass-panel">
+          <div class="card-title-between">
+            <div class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 14 14"></polyline>
+              </svg>
+              <h3>Registro de Tiempos</h3>
+            </div>
+
+            <div class="history-actions">
+              <button id="btn-copy-history" class="btn-icon-simple" title="Copiar resumen al portapapeles">
+                📋 Copiar Resumen
+              </button>
+              <button id="btn-clear-history" class="btn-icon-simple danger" title="Limpiar registro">
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          <!-- Tarjeta de Balance General Resumido -->
+          <div id="balance-banner" class="balance-banner surplus">
+            <div class="balance-text-block">
+              <span class="balance-sub">BALANCE GENERAL:</span>
+              <span id="balance-main-label" class="balance-main">Sobró 00:00</span>
+            </div>
+            <div class="balance-totals">
+              <span>Asignado: <strong id="balance-total-assigned">00:00</strong></span>
+              <span>Usado: <strong id="balance-total-used">00:00</strong></span>
+            </div>
+          </div>
+
+          <!-- Lista limpia de participaciones finalizadas con scroll -->
+          <div class="history-list-box">
+            <ul id="history-items-list" class="history-items-list">
+              <!-- Rellenado dinámicamente con JS -->
+            </ul>
+            <div id="history-empty" class="history-empty-text">
+              Al avanzar o finalizar, aquí se guardará si sobró o se pasó de tiempo.
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ================= PLACA VISUAL PROYECTADA EN PANTALLA PRINCIPAL ================= -->
+  <div id="local-plaque-overlay" class="modal-overlay hidden">
+    <div class="glass-panel plaque-presentation-card">
+      <span class="plaque-tag">PARTICIPACIÓN ACTUAL</span>
+      <h1 id="plaque-speaker"></h1>
+      <h2 id="plaque-origin"></h2>
+      <div id="plaque-divider" class="tv-divider"></div>
+      <p id="plaque-topic"></p>
+      <div id="plaque-song-box" class="plaque-song-pill hidden">
+        <span></span>
+      </div>
+      <button id="btn-close-local-plaque" class="btn-close-plaque">
+        Ocultar Informacion
+      </button>
     </div>
   </div>
 
-  <!-- Botón para abrir el panel de control -->
-  <button id="btn-toggle-settings" class="glass-button btn-settings">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="3"></circle>
-      <path
-        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-      </path>
-    </svg>
-  </button>
+  <!-- Toast de aviso -->
+  <div id="toast" class="toast hidden"></div>
 
-  <!-- Panel de Control -->
-  <aside id="settings-panel" class="settings-panel hidden">
-    <h3>Controles del Cronómetro</h3>
-    <div class="input-group">
-      <label for="input-speaker">Discursante</label>
-      <input type="text" id="input-speaker" placeholder="Erick Lozada" autocomplete="off" />
-    </div>
-    <div class="input-group">
-      <label for="input-origin">Congregación</label>
-      <input type="text" id="input-origin" placeholder="Santa Maria Ahuacatitlan" autocomplete="off" />
-    </div>
-    <div class="input-group">
-      <label for="input-topic">Tema</label>
-      <input type="text" id="input-topic" placeholder="Perlas Escondidas" autocomplete="off" />
-    </div>
-    <div class="input-group">
-      <label for="input-song">Canción</label>
-      <input type="number" id="input-song" placeholder="32" autocomplete="off" />
-    </div>
-    <div class="input-group">
-      <label for="input-minutes">Minutos de la participación</label>
-      <input type="number" id="input-minutes" placeholder="5" autocomplete="off" min="1" value="10" />
-    </div>
-    <div class="settings-actions">
-      <button id="btn-show-info" class="btn btn-primary">Mostrar Info</button>
-    </div>
-    <button id="btn-close-settings" class="btn-close">Cerrar</button>
-  </aside>
-
-  <script src="app.js"></script>
+  <!-- Módulos de la aplicación refactorizada -->
+  <script type="module" src="js/main.js"></script>
 </body>
+
+<a hidden href="https://www.flaticon.es/iconos-gratis/temporizador" title="temporizador iconos">Temporizador iconos
+  creados por
+  Smashicons - Flaticon</a>
 
 </html>
