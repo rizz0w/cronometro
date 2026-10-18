@@ -52,7 +52,21 @@
       <!-- Barra superior con Título de la parte activa y Transmitir a TV -->
       <div class="main-top-bar glass-panel">
         <div class="active-part-headline">
-          <span id="active-part-badge" class="part-badge">Parte 1 de 6</span>
+          <div class="part-headline-meta">
+            <span id="active-part-badge" class="part-badge">Parte 1 de 6</span>
+            <div class="part-nav-group">
+              <button id="btn-prev-part" class="btn-nav-arrow" title="Pasar a la participación anterior">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <button id="btn-next-part" class="btn-nav-arrow" title="Pasar a la siguiente participación">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          </div>
           <h1 id="active-part-title" class="active-part-title">Tesoros de la Biblia</h1>
         </div>
 
@@ -73,63 +87,99 @@
 
       <!-- Hero Timer Panel -->
       <section class="timer-hero-panel glass-panel">
-        <!-- Display gigante del Cronómetro -->
-        <div class="timer-box">
-          <div class="timer-display" id="timer">10:00</div>
+        <!-- VISTA NORMAL: Cronómetro Grande y Controles -->
+        <div id="timer-hero-normal" class="timer-hero-normal">
+          <!-- Display gigante del Cronómetro -->
+          <div class="timer-box">
+            <div class="timer-display" id="timer">10:00</div>
+          </div>
 
-          <!-- Barra de Progreso -->
-          <div class="progress-bar-container">
-            <div id="timer-progress-bar" class="progress-bar-fill" style="width: 100%;"></div>
+          <!-- 4 Botones Maestros -->
+          <div class="controls-grid">
+            <!-- 1. INICIAR -->
+            <button id="btn-start" class="btn-action btn-action-start" title="Iniciar conteo (Espacio)">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>INICIAR</span>
+            </button>
+
+            <!-- 2. PAUSAR -->
+            <button id="btn-pause" class="btn-action btn-action-pause" title="Pausar cronómetro">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <span>PAUSAR</span>
+            </button>
+
+            <!-- 3. SIGUIENTE PARTICIPACIÓN / FINALIZAR -->
+            <button id="btn-next" class="btn-action btn-action-next"
+              title="Guardar tiempo de esta parte y avanzar (Enter)">
+              <svg id="icon-btn-next" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19"></line>
+              </svg>
+              <span id="btn-next-label">SIGUIENTE PARTICIPACIÓN</span>
+            </button>
+
+            <!-- 4. REINICIAR -->
+            <button id="btn-reset" class="btn-action btn-action-reset" title="Reiniciar tiempo asignado a esta parte">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 2v6h6"></path>
+                <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+              </svg>
+              <span>REINICIAR</span>
+            </button>
+          </div>
+
+          <!-- Ajustes rápidos en vivo -->
+          <div class="quick-adjustments">
+            <span class="adjust-text">Ajustar tiempo:</span>
+            <button class="btn-adjust" data-adjust="-60">-1 min</button>
+            <button class="btn-adjust" data-adjust="-30">-30 seg</button>
+            <button class="btn-adjust" data-adjust="30">+30 seg</button>
+            <button class="btn-adjust" data-adjust="60">+1 min</button>
           </div>
         </div>
 
-        <!-- 4 Botones Maestros -->
-        <div class="controls-grid">
-          <!-- 1. INICIAR -->
-          <button id="btn-start" class="btn-action btn-action-start" title="Iniciar conteo (Espacio)">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span>INICIAR</span>
-          </button>
+        <!-- VISTA COMPACTA: Cronómetro Pequeño al visitar otra participación -->
+        <div id="timer-hero-mini" class="timer-hero-mini">
+          <div class="mini-meta-wrap">
+            <div class="mini-info-text">
+              <span id="mini-active-title" class="mini-active-title">Tesoros de la Biblia</span>
+            </div>
+          </div>
 
-          <!-- 2. PAUSAR -->
-          <button id="btn-pause" class="btn-action btn-action-pause" title="Pausar cronómetro">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="4" width="4" height="16"></rect>
-              <rect x="14" y="4" width="4" height="16"></rect>
-            </svg>
-            <span>PAUSAR</span>
-          </button>
+          <div class="mini-timer-center">
+            <div id="mini-timer" class="mini-timer-display" title="Clic para regresar a esta parte">00:00</div>
+          </div>
 
-          <!-- 3. SIGUIENTE PARTICIPACIÓN / FINALIZAR -->
-          <button id="btn-next" class="btn-action btn-action-next"
-            title="Guardar tiempo de esta parte y avanzar (Enter)">
-            <svg id="icon-btn-next" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polygon points="5 4 15 12 5 20 5 4"></polygon>
-              <line x1="19" y1="5" x2="19" y2="19"></line>
-            </svg>
-            <span id="btn-next-label">SIGUIENTE PARTICIPACIÓN</span>
-          </button>
-
-          <!-- 4. REINICIAR -->
-          <button id="btn-reset" class="btn-action btn-action-reset" title="Reiniciar tiempo asignado a esta parte">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M3 2v6h6"></path>
-              <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
-            </svg>
-            <span>REINICIAR</span>
-          </button>
-        </div>
-
-        <!-- Ajustes rápidos en vivo -->
-        <div class="quick-adjustments">
-          <span class="adjust-text">Ajustar tiempo:</span>
-          <button class="btn-adjust" data-adjust="-60">-1 min</button>
-          <button class="btn-adjust" data-adjust="-30">-30 seg</button>
-          <button class="btn-adjust" data-adjust="30">+30 seg</button>
-          <button class="btn-adjust" data-adjust="60">+1 min</button>
+          <div class="mini-actions-wrap">
+            <button id="btn-mini-toggle" class="btn-mini-control" title="Pausar o reanudar cronómetro">
+              <svg id="icon-mini-toggle" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+            </button>
+            <button id="btn-mini-next" class="btn-mini-action btn-mini-next" title="Pasar a la siguiente participación (Enter)">
+              <svg id="icon-mini-next" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                <line x1="19" y1="5" x2="19" y2="19"></line>
+              </svg>
+              <span id="btn-mini-next-label">Pasar participación</span>
+            </button>
+            <button id="btn-return-active" class="btn-return-active" title="Regresar al cronómetro en tamaño normal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <polyline points="9 21 3 21 3 15"></polyline>
+                <line x1="21" y1="3" x2="14" y2="10"></line>
+                <line x1="3" y1="21" x2="10" y2="14"></line>
+              </svg>
+              <span>Volver</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -197,9 +247,6 @@
             </div>
 
             <div class="history-actions">
-              <button id="btn-copy-history" class="btn-icon-simple" title="Copiar resumen al portapapeles">
-                📋 Copiar Resumen
-              </button>
               <button id="btn-clear-history" class="btn-icon-simple danger" title="Limpiar registro">
                 Limpiar
               </button>

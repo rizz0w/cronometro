@@ -203,6 +203,13 @@ export class LapsManager {
     this._saveAndNotify();
   }
 
+  updateItem(index, fields = {}) {
+    if (index >= 0 && index < this.participaciones.length) {
+      Object.assign(this.participaciones[index], fields);
+      this._saveAndNotify();
+    }
+  }
+
   markCurrentCompleted() {
     const current = this.getCurrent();
     if (current) {

@@ -273,6 +273,11 @@ body {
   box-shadow: 0 0 16px rgba(138, 43, 226, 0.35);
 }
 
+.part-drag-item.viewing {
+  border-color: rgba(99, 102, 241, 0.65) !important;
+  background: rgba(99, 102, 241, 0.12) !important;
+}
+
 .part-drag-item.completed {
   opacity: 0.65;
 }
@@ -382,6 +387,41 @@ body {
   min-width: 0;
 }
 
+.part-headline-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.part-nav-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem;
+}
+
+.btn-nav-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-nav-arrow:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.08);
+}
+
 .part-badge {
   font-size: 0.85rem;
   font-weight: 800;
@@ -472,11 +512,53 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.35rem;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timer-hero-normal {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  width: 100%;
+}
+
+.timer-hero-mini {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+/* Modo Mini del Cronómetro (al visitar otra participación) */
+.timer-hero-panel.is-mini {
+  padding: 0.95rem 1.5rem;
+  position: sticky;
+  top: 1rem;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), 0 0 20px rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-lg);
+}
+
+.timer-hero-panel.is-mini .timer-hero-normal {
+  display: none;
+}
+
+.timer-hero-panel.is-mini .timer-hero-mini {
+  display: flex;
 }
 
 @media (max-width: 600px) {
   .timer-hero-panel {
     padding: 1.25rem 1rem;
+  }
+  .timer-hero-panel.is-mini {
+    padding: 0.85rem 1rem;
   }
 }
 
@@ -484,7 +566,7 @@ body {
   background: rgba(0, 0, 0, 0.38);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
-  padding: 2.5rem 1.5rem 1.75rem 1.5rem;
+  padding: 2.5rem 1.5rem;
   text-align: center;
   box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.55);
 }
@@ -497,7 +579,7 @@ body {
   font-variant-numeric: tabular-nums;
   color: #ffffff;
   text-shadow: 0 0 35px rgba(255, 255, 255, 0.22);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -524,27 +606,153 @@ body {
   }
 }
 
-.progress-bar-container {
-  width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+/* ================= COMPONENTES DEL MINI CRONÓMETRO ================= */
+.mini-meta-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.mini-info-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-active-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
-  border-radius: 10px;
-  transition: width 0.2s ease, background 0.2s ease;
+.mini-part-badge {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
 }
 
-.progress-bar-fill.warning {
-  background: linear-gradient(90deg, #f59e0b, #ef4444);
+.mini-timer-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.progress-bar-fill.negative {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
+.mini-timer-display {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+  text-shadow: 0 0 22px rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.mini-timer-display:hover {
+  transform: scale(1.04);
+}
+
+.mini-timer-display.negative {
+  color: var(--danger);
+  text-shadow: 0 0 25px var(--danger-glow);
+  animation: negative-pulse 1.2s infinite alternate;
+}
+
+.mini-timer-display.warning {
+  color: #fbbf24;
+  text-shadow: 0 0 22px rgba(251, 191, 36, 0.45);
+}
+
+.mini-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.btn-mini-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-mini-control:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-mini-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-mini-next:hover {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+}
+
+.btn-mini-next.btn-action-finish {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-return-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.15rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-return-active:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 800px) {
+  .timer-hero-mini {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+  .mini-actions-wrap {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
 }
 
 /* ================= 4 BOTONES DE ACCIÓN PRINCIPALES ================= */

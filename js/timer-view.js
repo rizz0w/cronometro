@@ -1,0 +1,184 @@
+// js/timer-view.js - Actualizaciones visuales del cronómetro, controles, historial y transmisión
+import { elements } from './dom.js';
+import { formatTime, escapeHtml } from './utils.js';
+
+export const ICONS = {
+  PLAY: '<polygon points="5 3 19 12 5 21 5 3"></polygon>',
+  PAUSE: '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>',
+  NEXT: '<polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line>',
+  FINISH: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line>'
+};
+
+/**
+ * Actualiza los displays del cronómetro con el tiempo actual y estilos de advertencia/exceso
+ */
+export function updateTimerLiveUI(state) {
+  if (elements.timerDisplay)
+    elements.timerDisplay.textContent = state.formattedTime;
+
+  if (elements.miniTimerDisplay)
+    elements.miniTimerDisplay.textContent = state.formattedTime;
+
+  [elements.timerDisplay, elements.miniTimerDisplay].forEach(display => {
+    if (!display) return;
+    display.classList.toggle('negative', state.isNegative);
+    display.classList.toggle('warning', state.isWarning && !state.isNegative);
+  });
+}
+
+/**
+ * Actualiza el estado visual de los botones Iniciar y Pausar
+ */
+export function updateTimerControlsUI(isRunning) {
+  if (elements.btnStart) {
+    elements.btnStart.disabled = isRunning;
+    elements.btnStart.style.cursor = isRunning ? 'not-allowed' : '';
+    elements.btnStart.style.opacity = isRunning ? '0.6' : '1';
+  }
+
+  if (elements.btnPause) {
+    elements.btnPause.disabled = !isRunning;
+    elements.btnPause.style.opacity = !isRunning ? '0.6' : '1';
+  }
+
+  if (elements.iconMiniToggle) {
+    elements.iconMiniToggle.innerHTML = isRunning ? ICONS.PAUSE : ICONS.PLAY;
+  }
+}
+
+/**
+ * Actualiza los botones de avance (Normal y Mini) según si es la última parte o no
+ */
+export function updateNextButtonUI(isLast) {
+  const btnLabel = isLast ? 'FINALIZAR REUNIÓN' : 'SIGUIENTE PARTICIPACIÓN';
+  const miniLabel = isLast ? 'FINALIZAR REUNIÓN' : 'Pasar participación';
+  const iconMarkup = isLast ? ICONS.FINISH : ICONS.NEXT;
+
+  // Botón Principal
+  if (elements.btnNext && elements.btnNextLabel && elements.iconBtnNext) {
+    elements.btnNext.classList.toggle('btn-action-finish', isLast);
+    elements.btnNext.classList.toggle('btn-action-next', !isLast);
+    elements.btnNextLabel.textContent = btnLabel;
+    elements.iconBtnNext.innerHTML = iconMarkup;
+  }
+
+  // Botón Mini
+  if (elements.btnMiniNext && elements.btnMiniNextLabel) {
+    elements.btnMiniNext.classList.toggle('btn-action-finish', isLast);
+    elements.btnMiniNext.classList.toggle('btn-mini-next', !isLast);
+    elements.btnMiniNextLabel.textContent = miniLabel;
+    if (elements.iconMiniNext) {
+      elements.iconMiniNext.innerHTML = iconMarkup;
+    }
+  }
+}
+
+/**
+ * Actualiza el modo de vista (Normal vs Mini) y sincroniza los campos de entrada
+ */
+export function updateViewModeUI({ isMini, activePart, viewedPart, viewedIndex, totalParts, timerFormattedTime, isRunning }) {
+  if (elements.timerHeroPanel) {
+    elements.timerHeroPanel.classList.toggle('is-mini', isMini);
+  }
+
+  if (isMini && elements.miniActiveTitle) {
+    elements.miniActiveTitle.textContent = activePart?.title || 'Participación activa';
+    if (elements.miniTimerDisplay && timerFormattedTime) {
+      elements.miniTimerDisplay.textContent = timerFormattedTime;
+    }
+    if (elements.iconMiniToggle) {
+      elements.iconMiniToggle.innerHTML = isRunning ? ICONS.PAUSE : ICONS.PLAY;
+    }
+  }
+
+  if (elements.activePartTitle) {
+    elements.activePartTitle.textContent = viewedPart?.title || `Participación ${viewedIndex + 1}`;
+  }
+
+  if (elements.activePartBadge) {
+    elements.activePartBadge.textContent = `Parte ${viewedIndex + 1} de ${totalParts}`;
+  }
+
+  if (elements.inputMinutes) {
+    elements.inputMinutes.value = viewedPart?.minutes !== undefined ? viewedPart.minutes : 10;
+  }
+  if (elements.inputSpeaker) {
+    elements.inputSpeaker.value = viewedPart?.speaker || '';
+  }
+  if (elements.inputOrigin) {
+    elements.inputOrigin.value = viewedPart?.origin || '';
+  }
+  if (elements.inputTopic) {
+    elements.inputTopic.value = viewedPart?.topic || viewedPart?.title || '';
+  }
+  if (elements.inputSong) {
+    elements.inputSong.value = viewedPart?.song || '';
+  }
+}
+
+/**
+ * Renderiza el historial de participaciones concluidas y el balance de tiempo
+ */
+export function renderHistoryUI(records, summary) {
+  if (!elements.historyItemsList) return;
+  elements.historyItemsList.innerHTML = '';
+
+  if (records.length === 0) {
+    if (elements.historyEmpty) elements.historyEmpty.classList.remove('hidden');
+    if (elements.balanceBanner) elements.balanceBanner.className = 'balance-banner surplus';
+    if (elements.balanceMainLabel) elements.balanceMainLabel.textContent = 'Sobró 00:00';
+    if (elements.balanceTotalAssigned) elements.balanceTotalAssigned.textContent = '00:00';
+    if (elements.balanceTotalUsed) elements.balanceTotalUsed.textContent = '00:00';
+    return;
+  }
+
+  if (elements.historyEmpty) elements.historyEmpty.classList.add('hidden');
+
+  records.forEach(record => {
+    const isSurplus = record.differenceMs >= 0;
+    const diffFormatted = formatTime(Math.abs(record.differenceMs));
+    const label = `${isSurplus ? 'Sobró' : 'Se pasó'} ${diffFormatted}`;
+    const badgeClass = isSurplus ? 'badge-sobro' : 'badge-paso';
+
+    const li = document.createElement('li');
+    li.className = 'history-item-row';
+    li.innerHTML = `
+      <div class="hist-part-meta">
+        <span class="hist-part-num">#${record.lapNumber}</span>
+        <div>
+          <strong class="hist-part-title">${escapeHtml(record.title)}</strong>
+          ${record.speaker ? `<span class="hist-part-speaker">• ${escapeHtml(record.speaker)}</span>` : ''}
+          <div class="hist-time-stats">Asignado: ${formatTime(record.assignedMs)} | Usó: ${formatTime(record.usedMs)}</div>
+        </div>
+      </div>
+      <div class="hist-badge ${badgeClass}">${label}</div>
+    `;
+    elements.historyItemsList.appendChild(li);
+  });
+
+  if (elements.balanceTotalAssigned) elements.balanceTotalAssigned.textContent = summary.formattedAssigned;
+  if (elements.balanceTotalUsed) elements.balanceTotalUsed.textContent = summary.formattedUsed;
+  if (elements.balanceBanner) elements.balanceBanner.className = `balance-banner ${summary.isSurplus ? 'surplus' : 'deficit'}`;
+  if (elements.balanceMainLabel) elements.balanceMainLabel.textContent = `${summary.isSurplus ? 'Sobró' : 'Se pasó'} ${summary.formattedDifference}`;
+}
+
+/**
+ * Actualiza el botón y estado de conexión Chromecast / TV
+ */
+export function updateCastUI(status, isConnected) {
+  if (!elements.btnCast) return;
+  elements.btnCast.classList.toggle('connected', isConnected);
+  if (elements.castStatusText) {
+    elements.castStatusText.textContent = isConnected ? 'Transmitiendo en TV' : 'Transmitir a TV';
+  }
+
+  if (elements.castStatusPill) {
+    if (isConnected) {
+      elements.castStatusPill.textContent = 'Conectado';
+      elements.castStatusPill.className = 'status-pill online';
+    } else {
+      elements.castStatusPill.textContent = (status === 'available') ? 'Disponible' : 'Desconectado';
+      elements.castStatusPill.className = `status-pill ${(status === 'available') ? 'seeking' : 'offline'}`;
+    }
+  }
+}
