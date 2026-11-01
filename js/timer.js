@@ -2,16 +2,33 @@
 import { formatTime } from './utils.js';
 
 export class TimerEngine {
-  constructor({ onTick = null, onStateChange = null } = {}) {
+  constructor({ onTick = null, onStateChange = null, mode = 'descending' } = {}) {
     this.totalTimeMs = 10 * 60 * 1000;
     this.startTime = 0;
     this.pausedTime = 0;
     this.running = false;
     this.intervalId = null;
     this.tickRateMs = 100;
+    this.mode = mode; // 'descending' | 'ascending'
 
     this.onTick = onTick;
     this.onStateChange = onStateChange;
+  }
+
+  /**
+   * Cambia el modo de conteo (descendente o ascendente)
+   * @param {'descending'|'ascending'} newMode 
+   */
+  setMode(newMode) {
+    if (newMode === 'ascending' || newMode === 'descending') {
+      this.mode = newMode;
+      this._notifyTick();
+      this._notifyState();
+    }
+  }
+
+  getMode() {
+    return this.mode;
   }
 
   /**
@@ -140,15 +157,25 @@ export class TimerEngine {
   getState() {
     const difference = this.getDifference();
     const elapsed = this.getElapsed();
-    const isNegative = difference < 0;
+    const isAscending = this.mode === 'ascending';
+    
+    // Si es ascendente, el tiempo negativo (excedido) ocurre cuando el tiempo transcurrido supera el tiempo asignado
+    const isNegative = isAscending ? (elapsed > this.totalTimeMs && this.totalTimeMs > 0) : (difference < 0);
+    // Advertencia en el último minuto antes de completar el tiempo asignado
     const isWarning = difference <= 60000 && difference > 0 && this.running;
+
+    // En modo ascendente mostramos el tiempo transcurrido (elapsedMs).
+    // En modo descendente mostramos el tiempo restante o el tiempo excedido negativo (difference).
+    const displayMs = isAscending ? elapsed : difference;
 
     return {
       running: this.running,
+      mode: this.mode,
       totalTimeMs: this.totalTimeMs,
       differenceMs: difference,
       elapsedMs: elapsed,
-      formattedTime: formatTime(difference),
+      displayMs: displayMs,
+      formattedTime: formatTime(displayMs),
       isNegative: isNegative,
       isWarning: isWarning,
       progressPercent: this.getProgressPercent()

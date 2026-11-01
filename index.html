@@ -96,21 +96,12 @@
 
           <!-- 4 Botones Maestros -->
           <div class="controls-grid">
-            <!-- 1. INICIAR -->
-            <button id="btn-start" class="btn-action btn-action-start" title="Iniciar conteo (Espacio)">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+            <!-- 1. INICIAR / PAUSAR (Unificado) -->
+            <button id="btn-start" class="btn-action btn-action-start" title="Iniciar o pausar cronómetro (Espacio)">
+              <svg id="icon-btn-start" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
               </svg>
-              <span>INICIAR</span>
-            </button>
-
-            <!-- 2. PAUSAR -->
-            <button id="btn-pause" class="btn-action btn-action-pause" title="Pausar cronómetro">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="6" y="4" width="4" height="16"></rect>
-                <rect x="14" y="4" width="4" height="16"></rect>
-              </svg>
-              <span>PAUSAR</span>
+              <span id="btn-start-label">INICIAR</span>
             </button>
 
             <!-- 3. SIGUIENTE PARTICIPACIÓN / FINALIZAR -->
@@ -131,6 +122,19 @@
                 <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
               </svg>
               <span>REINICIAR</span>
+            </button>
+
+            <!-- 5. MODO DE CONTEO (Ascendente / Descendente) -->
+            <button id="btn-mode-toggle" class="btn-action btn-action-mode" title="Cambiar modo: Descendente (cuenta regresiva) o Ascendente (hacia adelante)">
+              <svg id="icon-mode-desc" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+              </svg>
+              <svg id="icon-mode-asc" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="hidden">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+              </svg>
+              <span id="btn-mode-label">DESCENDENTE</span>
             </button>
           </div>
 
@@ -282,7 +286,6 @@
   <!-- ================= PLACA VISUAL PROYECTADA EN PANTALLA PRINCIPAL ================= -->
   <div id="local-plaque-overlay" class="modal-overlay hidden">
     <div class="glass-panel plaque-presentation-card">
-      <span class="plaque-tag">PARTICIPACIÓN ACTUAL</span>
       <h1 id="plaque-speaker"></h1>
       <h2 id="plaque-origin"></h2>
       <div id="plaque-divider" class="tv-divider"></div>

@@ -30,11 +30,14 @@ export const elements = {
 
   // 4 Botones Maestros
   btnStart: document.getElementById('btn-start'),
+  btnStartLabel: document.getElementById('btn-start-label'),
+  iconBtnStart: document.getElementById('icon-btn-start'),
   btnPause: document.getElementById('btn-pause'),
   btnNext: document.getElementById('btn-next'),
   btnNextLabel: document.getElementById('btn-next-label'),
   iconBtnNext: document.getElementById('icon-btn-next'),
   btnReset: document.getElementById('btn-reset'),
+  btnModeToggle: document.getElementById('btn-mode-toggle'),
   quickAdjustButtons: document.querySelectorAll('.btn-adjust[data-adjust]'),
 
   // Inputs del orador

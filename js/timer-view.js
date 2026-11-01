@@ -31,14 +31,23 @@ export function updateTimerLiveUI(state) {
  */
 export function updateTimerControlsUI(isRunning) {
   if (elements.btnStart) {
-    elements.btnStart.disabled = isRunning;
-    elements.btnStart.style.cursor = isRunning ? 'not-allowed' : '';
-    elements.btnStart.style.opacity = isRunning ? '0.6' : '1';
-  }
+    elements.btnStart.disabled = false;
+    elements.btnStart.style.cursor = 'pointer';
+    elements.btnStart.style.opacity = '1';
 
-  if (elements.btnPause) {
-    elements.btnPause.disabled = !isRunning;
-    elements.btnPause.style.opacity = !isRunning ? '0.6' : '1';
+    // Alternar entre estilos y etiquetas de INICIAR y PAUSAR
+    elements.btnStart.classList.toggle('btn-action-start', !isRunning);
+    elements.btnStart.classList.toggle('btn-action-pause', isRunning);
+
+    if (elements.btnStartLabel) {
+      elements.btnStartLabel.textContent = isRunning ? 'PAUSAR' : 'INICIAR';
+    }
+
+    if (elements.iconBtnStart) {
+      elements.iconBtnStart.innerHTML = isRunning ? ICONS.PAUSE : ICONS.PLAY;
+    }
+
+    elements.btnStart.title = isRunning ? 'Pausar cronómetro (Espacio)' : 'Iniciar conteo (Espacio)';
   }
 
   if (elements.iconMiniToggle) {
@@ -180,5 +189,27 @@ export function updateCastUI(status, isConnected) {
       elements.castStatusPill.textContent = (status === 'available') ? 'Disponible' : 'Desconectado';
       elements.castStatusPill.className = `status-pill ${(status === 'available') ? 'seeking' : 'offline'}`;
     }
+  }
+}
+
+/**
+ * Actualiza el botón de modo de conteo (Descendente / Ascendente)
+ * @param {"descending"|"ascending"} mode 
+ */
+export function updateTimerModeUI(mode) {
+  if (!elements.btnModeToggle) return;
+  const isAsc = mode === "ascending";
+  elements.btnModeToggle.classList.toggle("mode-ascending", isAsc);
+  
+  const label = document.getElementById("btn-mode-label");
+  if (label) {
+    label.textContent = isAsc ? "ASCENDENTE" : "DESCENDENTE";
+  }
+
+  const iconDesc = document.getElementById("icon-mode-desc");
+  const iconAsc = document.getElementById("icon-mode-asc");
+  if (iconDesc && iconAsc) {
+    iconDesc.classList.toggle("hidden", isAsc);
+    iconAsc.classList.toggle("hidden", !isAsc);
   }
 }

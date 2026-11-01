@@ -14,7 +14,8 @@ import {
   updateNextButtonUI,
   updateViewModeUI,
   renderHistoryUI,
-  updateCastUI
+  updateCastUI,
+  updateTimerModeUI
 } from './timer-view.js';
 
 // ================= ESTADO DE CONTROL =================
@@ -98,6 +99,7 @@ function refreshUI() {
   });
 
   updateNextButtonUI(isLast);
+  updateTimerModeUI(timer.getMode());
 
   renderPartsList({
     parts: allParts,
@@ -120,7 +122,6 @@ function refreshUI() {
       if (oldViewedId) viewedIndex = newParts.findIndex(p => p.id === oldViewedId);
 
       refreshUI();
-      showToast('Participación reordenada');
     },
     onDeletePart: (idx) => {
       const target = lapsManager.getAll()[idx];
@@ -176,11 +177,28 @@ function switchToParticipation(idx) {
 function returnToActivePart() {
   if (activeTimerIndex !== null) {
     switchToParticipation(activeTimerIndex);
-    showToast('Regresaste al cronómetro');
   }
 }
 
+// Protección contra spam / clicks rápidos continuos
+let lastActionTime = 0;
+function throttleAction(minIntervalMs = 150) {
+  const now = Date.now();
+  if (now - lastActionTime < minIntervalMs) return true;
+  lastActionTime = now;
+  return false;
+}
+
 // ================= ACCIONES DEL CRONÓMETRO =================
+function handleToggleTimer() {
+  if (throttleAction(120)) return;
+  if (timer.running) {
+    handlePauseTimer();
+  } else {
+    handleStartTimer();
+  }
+}
+
 function handleStartTimer() {
   if (activeTimerIndex === null) activeTimerIndex = viewedIndex;
   timer.start();
@@ -192,13 +210,24 @@ function handlePauseTimer() {
   refreshUI();
 }
 
+function handleToggleMode() {
+  const currentMode = timer.getMode();
+  const newMode = (currentMode === 'descending') ? 'ascending' : 'descending';
+  timer.setMode(newMode);
+  updateTimerLiveUI(timer.getState());
+  refreshUI();
+  syncToPresentation();
+}
+
 function handleResetTimer() {
+  if (throttleAction(200)) return;
   timer.reset();
   activeTimerIndex = null;
   const current = lapsManager.getAll()[viewedIndex];
   if (current) timer.setTime(current.minutes);
+  updateTimerLiveUI(timer.getState());
   refreshUI();
-  showToast('Tiempo reiniciado');
+  syncToPresentation();
 }
 
 function handleNextOrFinish() {
@@ -232,11 +261,8 @@ function handleNextOrFinish() {
     activeTimerIndex = null;
     viewedIndex = targetIdx;
     refreshUI();
-    showToast(`🎉 ¡Reunión finalizada! ${diffLabel}`);
     return;
   }
-
-  showToast(`✅ ${current.title}: ${diffLabel}`);
 
   const nextIdx = targetIdx + 1;
   activeTimerIndex = null;
@@ -255,7 +281,6 @@ if (elements.btnAddPart) {
   elements.btnAddPart.addEventListener('click', () => {
     const nextNum = lapsManager.getAll().length + 1;
     lapsManager.addParticipation(`Parte ${nextNum}`, 10);
-    showToast(`Parte ${nextNum} agregada`);
   });
 }
 
@@ -274,16 +299,16 @@ if (elements.btnCast) {
 }
 
 // 3. Botones maestros de control
-if (elements.btnStart) elements.btnStart.addEventListener('click', handleStartTimer);
-if (elements.btnPause) elements.btnPause.addEventListener('click', handlePauseTimer);
+if (elements.btnStart) elements.btnStart.addEventListener('click', handleToggleTimer);
 if (elements.btnNext) elements.btnNext.addEventListener('click', handleNextOrFinish);
 if (elements.btnReset) elements.btnReset.addEventListener('click', handleResetTimer);
+if (elements.btnModeToggle) elements.btnModeToggle.addEventListener('click', handleToggleMode);
 
 // 4. Mini Cronómetro
 if (elements.btnMiniToggle) {
   elements.btnMiniToggle.addEventListener('click', (e) => {
     e.stopPropagation();
-    timer.running ? handlePauseTimer() : handleStartTimer();
+    handleToggleTimer();
   });
 }
 
@@ -324,7 +349,6 @@ elements.quickAdjustButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const deltaSecs = parseInt(btn.dataset.adjust, 10);
     timer.adjustTime(deltaSecs);
-    showToast(`${deltaSecs > 0 ? '+' : ''}${deltaSecs}s ajustados`);
   });
 });
 
@@ -333,14 +357,29 @@ elements.quickAdjustButtons.forEach(btn => {
   if (!input) return;
   input.addEventListener('input', () => {
     lapsManager.updateItem(viewedIndex, {
-      speaker: elements.inputSpeaker ? elements.inputSpeaker.value.trim() : '',
-      origin: elements.inputOrigin ? elements.inputOrigin.value.trim() : '',
-      topic: elements.inputTopic ? elements.inputTopic.value.trim() : '',
-      song: elements.inputSong ? elements.inputSong.value.trim() : ''
+      speaker: elements.inputSpeaker ? elements.inputSpeaker.value : '',
+      origin: elements.inputOrigin ? elements.inputOrigin.value : '',
+      topic: elements.inputTopic ? elements.inputTopic.value : '',
+      song: elements.inputSong ? elements.inputSong.value : ''
     });
 
     if (getIsPlaqueActive()) updateLocalPlaqueContent();
     syncToPresentation();
+  });
+
+  // Limpiar espacios en los extremos únicamente al perder el foco
+  input.addEventListener('blur', () => {
+    if (input.value !== input.value.trim()) {
+      input.value = input.value.trim();
+      lapsManager.updateItem(viewedIndex, {
+        speaker: elements.inputSpeaker ? elements.inputSpeaker.value : '',
+        origin: elements.inputOrigin ? elements.inputOrigin.value : '',
+        topic: elements.inputTopic ? elements.inputTopic.value : '',
+        song: elements.inputSong ? elements.inputSong.value : ''
+      });
+      if (getIsPlaqueActive()) updateLocalPlaqueContent();
+      syncToPresentation();
+    }
   });
 });
 
@@ -380,13 +419,24 @@ if (elements.btnClearHistory) {
 
 // 10. Atajos de teclado (Espacio = Iniciar/Pausar, Enter = Pasar/Finalizar)
 document.addEventListener('keydown', (e) => {
-  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  const activeEl = document.activeElement;
+  const isTextInput = activeEl && (
+    ['INPUT', 'TEXTAREA'].includes(activeEl.tagName) ||
+    activeEl.isContentEditable
+  );
+  if (isTextInput) return;
 
   if (e.code === 'Space') {
     e.preventDefault();
-    timer.running ? handlePauseTimer() : handleStartTimer();
+    if (activeEl && activeEl.tagName === 'BUTTON') {
+      activeEl.blur();
+    }
+    handleToggleTimer();
   } else if (e.code === 'Enter') {
     e.preventDefault();
+    if (activeEl && activeEl.tagName === 'BUTTON') {
+      activeEl.blur();
+    }
     handleNextOrFinish();
   }
 });
