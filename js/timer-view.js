@@ -125,23 +125,24 @@ export function updateViewModeUI({ isMini, activePart, viewedPart, viewedIndex, 
   }
 }
 
-/**
- * Renderiza el historial de participaciones concluidas y el balance de tiempo
- */
-export function renderHistoryUI(records, summary) {
-  if (!elements.historyItemsList) return;
-  elements.historyItemsList.innerHTML = '';
+function renderHistoryTarget(
+  { listEl, emptyEl, bannerEl, mainLabelEl, assignedEl, usedEl },
+  records,
+  summary
+) {
+  if (!listEl) return;
+  listEl.innerHTML = '';
 
   if (records.length === 0) {
-    if (elements.historyEmpty) elements.historyEmpty.classList.remove('hidden');
-    if (elements.balanceBanner) elements.balanceBanner.className = 'balance-banner surplus';
-    if (elements.balanceMainLabel) elements.balanceMainLabel.textContent = 'Sobró 00:00';
-    if (elements.balanceTotalAssigned) elements.balanceTotalAssigned.textContent = '00:00';
-    if (elements.balanceTotalUsed) elements.balanceTotalUsed.textContent = '00:00';
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    if (bannerEl) bannerEl.className = 'balance-banner surplus';
+    if (mainLabelEl) mainLabelEl.textContent = 'Sobró 00:00';
+    if (assignedEl) assignedEl.textContent = '00:00';
+    if (usedEl) usedEl.textContent = '00:00';
     return;
   }
 
-  if (elements.historyEmpty) elements.historyEmpty.classList.add('hidden');
+  if (emptyEl) emptyEl.classList.add('hidden');
 
   records.forEach(record => {
     const isSurplus = record.differenceMs >= 0;
@@ -162,13 +163,44 @@ export function renderHistoryUI(records, summary) {
       </div>
       <div class="hist-badge ${badgeClass}">${label}</div>
     `;
-    elements.historyItemsList.appendChild(li);
+    listEl.appendChild(li);
   });
 
-  if (elements.balanceTotalAssigned) elements.balanceTotalAssigned.textContent = summary.formattedAssigned;
-  if (elements.balanceTotalUsed) elements.balanceTotalUsed.textContent = summary.formattedUsed;
-  if (elements.balanceBanner) elements.balanceBanner.className = `balance-banner ${summary.isSurplus ? 'surplus' : 'deficit'}`;
-  if (elements.balanceMainLabel) elements.balanceMainLabel.textContent = `${summary.isSurplus ? 'Sobró' : 'Se pasó'} ${summary.formattedDifference}`;
+  if (assignedEl) assignedEl.textContent = summary.formattedAssigned;
+  if (usedEl) usedEl.textContent = summary.formattedUsed;
+  if (bannerEl) bannerEl.className = `balance-banner ${summary.isSurplus ? 'surplus' : 'deficit'}`;
+  if (mainLabelEl) mainLabelEl.textContent = `${summary.isSurplus ? 'Sobró' : 'Se pasó'} ${summary.formattedDifference}`;
+}
+
+/**
+ * Renderiza el historial de participaciones concluidas y el balance de tiempo
+ */
+export function renderHistoryUI(records, summary) {
+  renderHistoryTarget(
+    {
+      listEl: elements.historyItemsList,
+      emptyEl: elements.historyEmpty,
+      bannerEl: elements.balanceBanner,
+      mainLabelEl: elements.balanceMainLabel,
+      assignedEl: elements.balanceTotalAssigned,
+      usedEl: elements.balanceTotalUsed
+    },
+    records,
+    summary
+  );
+
+  renderHistoryTarget(
+    {
+      listEl: elements.modalHistoryItemsList,
+      emptyEl: elements.modalHistoryEmpty,
+      bannerEl: elements.modalBalanceBanner,
+      mainLabelEl: elements.modalBalanceMainLabel,
+      assignedEl: elements.modalBalanceTotalAssigned,
+      usedEl: elements.modalBalanceTotalUsed
+    },
+    records,
+    summary
+  );
 }
 
 /**

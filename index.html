@@ -251,6 +251,15 @@
             </div>
 
             <div class="history-actions">
+              <button id="btn-expand-history" class="btn-icon-simple" title="Ampliar registro de tiempos" aria-label="Ampliar registro de tiempos">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;">
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <polyline points="9 21 3 21 3 15"></polyline>
+                  <line x1="21" y1="3" x2="14" y2="10"></line>
+                  <line x1="3" y1="21" x2="10" y2="14"></line>
+                </svg>
+                Ampliar
+              </button>
               <button id="btn-clear-history" class="btn-icon-simple danger" title="Limpiar registro">
                 Limpiar
               </button>
@@ -296,6 +305,42 @@
       <button id="btn-close-local-plaque" class="btn-close-plaque">
         Ocultar Informacion
       </button>
+    </div>
+  </div>
+
+  <!-- ================= MODAL DE REGISTRO DE TIEMPOS AMPLIADO ================= -->
+  <div id="history-modal-overlay" class="modal-overlay hidden">
+    <div class="glass-panel history-modal-card">
+      <div class="history-modal-header">
+        <div class="card-title">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 14 14"></polyline>
+          </svg>
+          <h3>Registro de Tiempos</h3>
+        </div>
+        <button id="btn-close-history-modal" class="btn-icon-simple" title="Cerrar vista ampliada">
+          Cerrar
+        </button>
+      </div>
+
+      <div id="modal-balance-banner" class="balance-banner surplus">
+        <div class="balance-text-block">
+          <span class="balance-sub">BALANCE GENERAL:</span>
+          <span id="modal-balance-main-label" class="balance-main">Sobró 00:00</span>
+        </div>
+        <div class="balance-totals">
+          <span>Asignado: <strong id="modal-balance-total-assigned">00:00</strong></span>
+          <span>Usado: <strong id="modal-balance-total-used">00:00</strong></span>
+        </div>
+      </div>
+
+      <div class="history-modal-list-box">
+        <ul id="modal-history-items-list" class="history-items-list"></ul>
+        <div id="modal-history-empty" class="history-empty-text">
+          Al avanzar o finalizar, aquí se guardará si sobró o se pasó de tiempo.
+        </div>
+      </div>
     </div>
   </div>
 

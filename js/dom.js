@@ -65,6 +65,15 @@ export const elements = {
   historyItemsList: document.getElementById('history-items-list'),
   historyEmpty: document.getElementById('history-empty'),
   btnClearHistory: document.getElementById('btn-clear-history'),
+  btnExpandHistory: document.getElementById('btn-expand-history'),
+  historyModalOverlay: document.getElementById('history-modal-overlay'),
+  btnCloseHistoryModal: document.getElementById('btn-close-history-modal'),
+  modalBalanceBanner: document.getElementById('modal-balance-banner'),
+  modalBalanceMainLabel: document.getElementById('modal-balance-main-label'),
+  modalBalanceTotalAssigned: document.getElementById('modal-balance-total-assigned'),
+  modalBalanceTotalUsed: document.getElementById('modal-balance-total-used'),
+  modalHistoryItemsList: document.getElementById('modal-history-items-list'),
+  modalHistoryEmpty: document.getElementById('modal-history-empty'),
 
   // Toast
   toast: document.getElementById('toast')

@@ -417,6 +417,26 @@ if (elements.btnClearHistory) {
   });
 }
 
+if (elements.btnExpandHistory && elements.historyModalOverlay) {
+  elements.btnExpandHistory.addEventListener('click', () => {
+    elements.historyModalOverlay.classList.remove('hidden');
+  });
+}
+
+if (elements.btnCloseHistoryModal && elements.historyModalOverlay) {
+  elements.btnCloseHistoryModal.addEventListener('click', () => {
+    elements.historyModalOverlay.classList.add('hidden');
+  });
+}
+
+if (elements.historyModalOverlay) {
+  elements.historyModalOverlay.addEventListener('click', (e) => {
+    if (e.target === elements.historyModalOverlay) {
+      elements.historyModalOverlay.classList.add('hidden');
+    }
+  });
+}
+
 // 10. Atajos de teclado (Espacio = Iniciar/Pausar, Enter = Pasar/Finalizar)
 document.addEventListener('keydown', (e) => {
   const activeEl = document.activeElement;
@@ -425,6 +445,11 @@ document.addEventListener('keydown', (e) => {
     activeEl.isContentEditable
   );
   if (isTextInput) return;
+
+  if (e.key === 'Escape' && elements.historyModalOverlay && !elements.historyModalOverlay.classList.contains('hidden')) {
+    elements.historyModalOverlay.classList.add('hidden');
+    return;
+  }
 
   if (e.code === 'Space') {
     e.preventDefault();
