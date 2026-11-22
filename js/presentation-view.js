@@ -43,8 +43,7 @@
     if (data.isNegative) {
       tvTimer.classList.add('negative');
       tvTimer.classList.remove('warning');
-      tvStatusBadge.classList.remove('hidden');
-      tvStatusText.textContent = data.overtimeText || 'SE PASÓ';
+      tvStatusBadge.classList.add('hidden');
     } else {
       tvTimer.classList.remove('negative');
       if (data.differenceMs !== undefined && data.differenceMs <= 60000 && data.differenceMs > 0 && data.running) {

@@ -1450,19 +1450,6 @@ body {
 .tv-timer-display.negative {
   color: #ff3344;
   text-shadow: 0 10px 60px rgba(0, 0, 0, 0.8), 0 0 80px rgba(255, 51, 68, 0.6);
-  animation: tv-overtime-pulse 1s infinite alternate ease-in-out;
-}
-
-@keyframes tv-overtime-pulse {
-  0% {
-    transform: scale(1);
-    filter: brightness(1);
-  }
-
-  100% {
-    transform: scale(1.03);
-    filter: brightness(1.15);
-  }
 }
 
 .tv-status-badge {
